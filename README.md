@@ -45,3 +45,5 @@ Suporte a múltiplos usuários com tela de login
 DTOs para separar entidade da API
 Testes automatizados com JUnit e Mockito
 Containerização completa com Docker
+
+Os comentários e nomes de variáveis no código estão em inglês como parte do meu processo de evolução no idioma.
