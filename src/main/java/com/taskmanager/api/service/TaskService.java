@@ -1,4 +1,8 @@
 package com.taskmanager.api.service;
+
+import com.taskmanager.api.dto.TaskMapper;
+import com.taskmanager.api.dto.TaskRequestDTO;
+import com.taskmanager.api.dto.TaskResponseDTO;
 import com.taskmanager.api.entity.Task;
 import com.taskmanager.api.entity.TaskStatus;
 import com.taskmanager.api.exception.ResourceNotFoundException;
@@ -14,33 +18,43 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
-    public List<Task> findAll() {
-        return taskRepository.findAll();
+    public List<TaskResponseDTO> findAll() {
+        return taskRepository.findAll()
+                .stream()
+                .map(TaskMapper::toResponse)
+                .toList();
     }
 
-    public Task findById(Long id) {
-        return taskRepository.findById(id)
+    public TaskResponseDTO findById(Long id) {
+        Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task não encontrada com id: " + id));
+        return TaskMapper.toResponse(task);
     }
 
-    public Task create(Task task) {
-        return taskRepository.save(task);
+    public TaskResponseDTO create(TaskRequestDTO dto) {
+        Task task = TaskMapper.toEntity(dto);
+        return TaskMapper.toResponse(taskRepository.save(task));
     }
 
-    public Task update(Long id , Task taskDetails) {
-        Task task = findById(id);
-        task.setTitle(taskDetails.getTitle());
-        task.setDescription(taskDetails.getDescription());
-        task.setStatus(taskDetails.getStatus());
-        return taskRepository.save(task);
+    public TaskResponseDTO update(Long id, TaskRequestDTO dto) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task não encontrada com id: " + id));
+        task.setTitle(dto.getTitle());
+        task.setDescription(dto.getDescription());
+        task.setStatus(dto.getStatus());
+        return TaskMapper.toResponse(taskRepository.save(task));
     }
 
     public void delete(Long id) {
-        Task task = findById(id);
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task não encontrada com id: " + id));
         taskRepository.delete(task);
     }
 
-    public List<Task> findByStatus(TaskStatus status) {
-        return taskRepository.findByStatus(status);
+    public List<TaskResponseDTO> findByStatus(TaskStatus status) {
+        return taskRepository.findByStatus(status)
+                .stream()
+                .map(TaskMapper::toResponse)
+                .toList();
     }
 }
